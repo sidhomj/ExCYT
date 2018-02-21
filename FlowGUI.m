@@ -22,7 +22,7 @@ function varargout = FlowGUI(varargin)
 
 % Edit the above text to modify the response to help FlowGUI
 
-% Last Modified by GUIDE v2.5 26-Sep-2017 17:16:46
+% Last Modified by GUIDE v2.5 21-Feb-2018 14:10:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,8 @@ warning('off','all');
 % Choose default command line output for FlowGUI
 handles.output = hObject;
 handles.clustermethodbox.String={'Hard KMEANS (on t-SNE)','Hard KMEANS (on HD Data)','DBSCAN','Hierarchical Clustering','Network Graph-Based','Self Organized Map','GMM - Expectation Minimization','Variational Bayesian Inference for GMM'};
+handles.Distance_Measure.String={'euclidean','seuclidean','cityblock','chebychev','minkowski','mahalanobis','cosine','correlation','spearman','hamming','jaccard'};
+handles.Perplexity.String='30';
 addpath('Functions/');
 % Update handles structure
 guidata(hObject, handles);
@@ -316,14 +318,13 @@ handles.popupmenu2.String=handles.ChannelsAll;
 
 normalizetsne=1;
 hbox=msgbox('Running t-SNE Analysis');
-Y=tsne(y,'Standardize',normalizetsne);
+Y=tsne(y,'Standardize',normalizetsne,'Distance',handles.Distance_Measure.String{handles.Distance_Measure.Value},'Perplexity',str2num(handles.Perplexity.String));
 close(hbox);
 handles.Y=Y;
 
 scatter(handles.axes1,Y(:,1),Y(:,2),'filled');
 handles.axes1.XTickLabel={};
 handles.axes1.YTickLabel={};
-handles.axes1.Title.String='TSNE';
 handles.tsne_xlim=handles.axes1.XLim;
 handles.tsne_ylim=handles.axes1.YLim;
 
@@ -2662,6 +2663,53 @@ function inst_type_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in Distance_Measure.
+function Distance_Measure_Callback(hObject, eventdata, handles)
+% hObject    handle to Distance_Measure (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns Distance_Measure contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from Distance_Measure
+
+
+% --- Executes during object creation, after setting all properties.
+function Distance_Measure_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Distance_Measure (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+function Perplexity_Callback(hObject, eventdata, handles)
+% hObject    handle to Perplexity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of Perplexity as text
+%        str2double(get(hObject,'String')) returns contents of Perplexity as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function Perplexity_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Perplexity (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
