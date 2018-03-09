@@ -219,6 +219,7 @@ end
 handles.num=num; 
 handles.num2=num2;
 handles.ChannelsAll=header;
+handles.channel_colors = channel_names
 handles.channelselect.String=header;
 handles.xaxis.String=header;
 handles.yaxis.String=header;
@@ -512,11 +513,19 @@ switch ClusterMethod
         
         hbox=msgbox('Clustering Events...');
         num_clusters=clusterparameter;
+        if floor(num_clusters) ~= num_clusters;
+            msgbox('Number of Clusters must be an integer value!','Error','error');
+            return
+        end
         idx=kmeans(Y,num_clusters,'Start','uniform');
     case 2
         
         hbox=msgbox('Clustering Events...');
         num_clusters=clusterparameter;
+        if floor(num_clusters) ~= num_clusters;
+            msgbox('Number of Clusters must be an integer value!','Error','error');
+            return
+        end
         idx=kmeans(handles.transy,num_clusters,'Start','uniform');
 %     elseif ClusterMethod==3
 %         
@@ -613,6 +622,12 @@ switch ClusterMethod
         end
         num_clusters=max(idx);
     case 6
+        num_clusters = clusterparameter;
+        if floor(num_clusters) ~= num_clusters;
+            msgbox('Number of Clusters must be an integer value!','Error','error');
+            return
+        end
+        
         hbox=msgbox('Clustering Events...');
         net=selforgmap([round(sqrt(clusterparameter)),round(sqrt(clusterparameter))]);
         net.trainParam.showWindow = false;
@@ -620,6 +635,11 @@ switch ClusterMethod
         idx=transpose(vec2ind(net(transpose(handles.transy))));
         num_clusters=max(idx);
     case 7
+        num_clusters = clusterparameter;
+        if floor(num_clusters) ~= num_clusters;
+            msgbox('Number of Clusters must be an integer value!','Error','error');
+            return
+        end
         hbox=msgbox('Clustering Events...');
         try 
          idx=transpose(mixGaussEm(transpose(handles.transy),clusterparameter));
@@ -629,6 +649,11 @@ switch ClusterMethod
         end
         
     case 8
+        num_clusters = clusterparameter;
+        if floor(num_clusters) ~= num_clusters;
+            msgbox('Number of Clusters must be an integer value!','Error','error');
+            return
+        end
         hbox=msgbox('Clustering Events...');
         try
         idx=transpose(mixGaussVb(transpose(handles.transy),clusterparameter));
@@ -2123,7 +2148,37 @@ function autocomp_Callback(hObject, eventdata, handles)
 
 uiwait(msgbox('Select Directory with Single Stains. Files should be labeled as Channel.fcs as indicated in the main name designation in the fcs file. Label unstained control as Unstained.fcs.'));
 folder_name = uigetdir;
-list=dir([strcat(folder_name)]);
+list=dir([strcat(folder_name,'/*fcs')]);
+%First check that the user selected fcs files
+if isempty(list)
+     msgbox('No fcs files selected!','Error','error');
+     return
+end
+
+%Check for unstained sample
+list2 = table2cell(struct2table(list));
+colors = handles.channel_colors;
+for i = 1:size(list2,1)
+    name_temp = strsplit(list2{i,1},'.fcs');
+    name_temp = name_temp{1};
+    names{i} = name_temp;
+end
+
+if ~ismember('Unstained',names)
+    msgbox('No Unstained Sample present!','Error','error');
+    return
+end
+
+%Then check to make sure all files selected exist as colors in current
+%panel
+
+for i = 1:size(names,2)
+    name_temp = names{i};
+    if ~strmatch(name_temp,colors)
+        msgbox('Color not found in panel. Check naming of single stains.','Error','error');
+        return
+    end
+end
 
         uiwait(msgbox('Select File to set Forward/SSC Gate'));
 
