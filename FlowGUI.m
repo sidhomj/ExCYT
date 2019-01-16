@@ -209,6 +209,7 @@ for i=1:size(filename,2)
                 header{j}=headerdata(j).name;
             end
         end
+        channel_names = header
 %         handles.num=data;
 %         handles.num2=data;
         num=[num;data];
@@ -219,7 +220,7 @@ end
 handles.num=num; 
 handles.num2=num2;
 handles.ChannelsAll=header;
-handles.channel_colors = channel_names
+handles.channel_colors = channel_names;
 handles.channelselect.String=header;
 handles.xaxis.String=header;
 handles.yaxis.String=header;
